@@ -1,23 +1,40 @@
--- init.lua
+vim.g.base46_cache = vim.fn.stdpath "data" .. "/base46/"
+vim.g.mapleader = " "
 
--- Enable true color
-vim.o.termguicolors = true
+-- bootstrap lazy and all plugins
+local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 
--- Install plugins with lazy.nvim
+local uv = vim.uv or vim.loop
+
+if not uv.fs_stat(lazypath) then
+  local repo = "https://github.com/folke/lazy.nvim.git"
+  vim.fn.system({ "git", "clone", "--filter=blob:none", repo, "--branch=stable", lazypath })
+end
+
+vim.opt.rtp:prepend(lazypath)
+
+local lazy_config = require "configs.lazy"
+
+-- load plugins
 require("lazy").setup({
-    "EdenEast/nightfox.nvim",  -- Nightfox theme
-})
+  {
+    "NvChad/NvChad",
+    lazy = false,
+    branch = "v2.5",
+    import = "nvchad.plugins",
+  },
 
--- Optional: Nightfox customization
-require("nightfox").setup({
-    options = {
-        transparent = true,
-        styles = {
-            comments = "italic",
-            keywords = "bold",
-        },
-    }
-})
+  { import = "plugins" },
+}, lazy_config)
 
--- Set colorscheme
-vim.cmd("colorscheme nightfox")
+-- load theme
+dofile(vim.g.base46_cache .. "defaults")
+dofile(vim.g.base46_cache .. "statusline")
+
+require "options"
+require "autocmds"
+
+vim.schedule(function()
+  require "mappings"
+end)
+
