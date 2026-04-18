@@ -38,3 +38,5 @@ vim.schedule(function()
   require "mappings"
 end)
 
+-- Keybinds
+vim.opt.clipboard = "unnamedplus"
